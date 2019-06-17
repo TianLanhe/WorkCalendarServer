@@ -61,7 +61,7 @@ func (m *Model) GetReplaceStringMap(key string) (map[string]string, error) {
 			return nil, fmt.Errorf("line \"%v\" have no enough field", line)
 		}
 
-		ret[words[0]] = words[2]
+		ret[words[0]] = words[1]
 	}
 
 	return ret, nil
