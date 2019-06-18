@@ -34,7 +34,11 @@ func (m *Model) GetHolidayList(key string) ([]string, error) {
 			break
 		}
 
-		ret = append(ret, strings.TrimSpace(line))
+		line = strings.TrimSpace(line);
+
+		if len(line) > 0 {
+			ret = append(ret, line)
+		}
 	}
 
 	return ret, nil
@@ -55,13 +59,17 @@ func (m *Model) GetReplaceStringMap(key string) (map[string]string, error) {
 		} else if err == io.EOF {
 			break
 		}
+		
+		line = strings.TrimSpace(line);
 
-		words := strings.Split(strings.TrimSpace(line), " ")
-		if len(words) != 3 {
-			return nil, fmt.Errorf("line \"%v\" have no enough field", line)
+                if len(line) > 0 {
+			words := strings.Split(line, " ")
+			if len(words) != 3 {
+				return nil, fmt.Errorf("line \"%v\" have no enough field", line)
+			}
+
+			ret[words[0]] = words[1]
 		}
-
-		ret[words[0]] = words[1]
 	}
 
 	return ret, nil
@@ -83,17 +91,21 @@ func (m *Model) GetReplaceColorMap(key string) (map[string]int, error) {
 			break
 		}
 
-		words := strings.Split(strings.TrimSpace(line), " ")
-		if len(words) != 3 {
-			return nil, fmt.Errorf("line \"%v\" have no enough field", line)
-		}
+		line = strings.TrimSpace(line);
+                
+                if len(line) > 0 {
+			words := strings.Split(line, " ")
+			if len(words) != 3 {
+				return nil, fmt.Errorf("line \"%v\" have no enough field", line)
+			}
 
-		color, err := strconv.Atoi(words[2])
-		if err != nil {
-			return nil, fmt.Errorf("the third field of the line \"%v\" can not convert to int", line)
-		}
+			color, err := strconv.Atoi(words[2])
+			if err != nil {
+				return nil, fmt.Errorf("the third field of the line \"%v\" can not convert to int", line)
+			}
 
-		ret[words[0]] = color
+			ret[words[0]] = color
+		}
 	}
 
 	return ret, nil
