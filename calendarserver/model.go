@@ -126,7 +126,7 @@ func (m *Model) GetTip(key string) (string, error) {
 		return "", err
 	}
 
-	tipFile.Close()
+	defer tipFile.Close()
 
 	bytes, err := ioutil.ReadAll(tipFile)
 	if err != nil {
