@@ -48,7 +48,7 @@ func (s *Server) getTip(c *gin.Context) {
 		tip = ""
 	}
 
-	c.JSON(http.StatusOK, tip)
+	c.String(http.StatusOK, tip)
 }
 
 func (s *Server) getHolidayList(c *gin.Context) {
