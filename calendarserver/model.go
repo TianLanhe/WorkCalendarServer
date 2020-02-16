@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -15,6 +16,7 @@ type Model struct {
 const (
 	holidaySuffix = "_holiday.cld"
 	workdaySuffix = "_workday.cld"
+	tipSuffix = "_tip.txt"
 	dir           = "./data/"
 )
 
@@ -23,6 +25,8 @@ func (m *Model) GetHolidayList(key string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	defer holidayFile.Close()
 
 	var ret []string
 	reader := bufio.NewReader(holidayFile)
@@ -41,6 +45,7 @@ func (m *Model) GetHolidayList(key string) ([]string, error) {
 		}
 	}
 
+
 	return ret, nil
 }
 
@@ -49,6 +54,8 @@ func (m *Model) GetReplaceStringMap(key string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	defer workdayFile.Close()
 
 	ret := make(map[string]string)
 	reader := bufio.NewReader(workdayFile)
@@ -81,6 +88,8 @@ func (m *Model) GetReplaceColorMap(key string) (map[string]int, error) {
 		return nil, err
 	}
 
+	defer workdayFile.Close()
+
 	ret := make(map[string]int)
 	reader := bufio.NewReader(workdayFile)
 	for {
@@ -111,10 +120,30 @@ func (m *Model) GetReplaceColorMap(key string) (map[string]int, error) {
 	return ret, nil
 }
 
+func (m *Model) GetTip(key string) (string, error) {
+	tipFile, err := os.Open(getTipFileNmae(key))
+	if err != nil {
+		return "", err
+	}
+
+	tipFile.Close()
+
+	bytes, err := ioutil.ReadAll(tipFile)
+	if err != nil {
+		return "",err
+	}
+
+	return string(bytes),nil
+}
+
 func getHolidayFileNmae(key string) string {
 	return dir + key + holidaySuffix
 }
 
 func getWorkdayFileNmae(key string) string {
 	return dir + key + workdaySuffix
+}
+
+func getTipFileNmae(key string) string {
+	return dir + key + tipSuffix
 }

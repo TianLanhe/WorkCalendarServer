@@ -29,12 +29,26 @@ func (s *Server) Run(addr ...string) error {
 
 func (s *Server) initRouter() {
 	group := s.engine.Group("/workcalendar")
+	group.GET("/", s.home)
 	group.GET("/getholidaylist/:key", s.getHolidayList)
 	group.GET("/getreplacestringmap/:key", s.getReplaceStringMap)
 	group.GET("/getreplacecolormap/:key", s.getReplaceColorMap)
+	group.GET("/gettip/:key", s.getTip)
 	s.engine.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, nil)
 	})
+}
+
+func (s *Server) getTip(c *gin.Context) {
+	key := c.Param("key")
+
+	tip, err := s.model.GetTip(key)
+	if err != nil {
+		log.Errorf("get holiday list error:%v", err)
+		tip = ""
+	}
+
+	c.JSON(http.StatusOK, tip)
 }
 
 func (s *Server) getHolidayList(c *gin.Context) {
@@ -46,6 +60,11 @@ func (s *Server) getHolidayList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, holidayList)
+}
+
+func (s *Server) home(c *gin.Context) {
+	c.Header("Content-Type", "text/html; charset=utf-8")
+	c.String(http.StatusOK, `<a href="ftp://138.128.197.157/pub/WorkCalendar.apk" download="" > 下载班表 </a>`)
 }
 
 func (s *Server) getReplaceStringMap(c *gin.Context) {
@@ -75,6 +94,7 @@ func myLogger(c *gin.Context) {
 	start := time.Now()
 	path := c.Request.URL.Path
 	raw := c.Request.URL.RawQuery
+	mothod := c.Request.Method
 
 	// Process request
 	c.Next()
@@ -89,5 +109,6 @@ func myLogger(c *gin.Context) {
 	if raw != "" {
 		path = path + "?" + raw
 	}
-	log.Infof("PATH:%s | CODE:%d | IP:%s | TIME:%d | ECODE:%d | BODY_SIZE:%d", path, statusCode, clientIP, latency/time.Millisecond, ecode, bodySize)
+	log.Infof("METHOD:%s | PATH:%s | CODE:%d | IP:%s | TIME:%d | ECODE:%d | BODY_SIZE:%d", mothod, path, statusCode, clientIP, latency/time.Millisecond, ecode, bodySize)
+	//fmt.Printf("METHOD:%s | PATH:%s | CODE:%d | IP:%s | TIME:%d | ECODE:%d | BODY_SIZE:%d\n", mothod, path, statusCode, clientIP, latency/time.Millisecond, ecode, bodySize)
 }
